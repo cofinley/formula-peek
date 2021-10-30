@@ -1,0 +1,123 @@
+ <!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <style>
+    .formulas {
+      overflow: auto;
+      max-width: 1000px;
+    }
+
+    ul {
+      list-style-type: none;
+      padding-left: 20px;
+      font-family: monospace;
+    }
+
+    li {
+      white-space: nowrap;
+    }
+
+    .ref {
+      color: blue;
+      display: inline-block;
+      margin-bottom: 5px;
+    }
+      
+    .header, .value, .formula {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 15em;
+      display: inline-block;
+      vertical-align: top;
+    }
+      
+    /* Style the caret/arrow */
+    .caret {
+      user-select: none; /* Prevent text selection */
+    }
+    
+    /* Create the caret/arrow with a unicode, and style it */
+    .caret::before {
+      content: "\25B6";
+      color: black;
+      display: inline-block;
+      margin-right: 3px;
+      margin-left: -18px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    
+    .caret-down::before {
+      transform: rotate(90deg);
+    }
+    
+    /* Hide the nested list */
+    .nested {
+      display: none;
+    }
+    
+    /* Show the nested list when the user clicks on the caret/arrow (with JavaScript) */
+    .active {
+      display: block;
+    }
+    
+    .formula-html {
+      background: lightgray;
+      white-space: pre;
+    }
+    </style>
+  </head>
+  <body onload="start()">
+    <div id="utils">
+      <input type="button" value="Expand All" onclick="toggleAll(true)" />
+      <input type="button" value="Collapse All" onclick="toggleAll(false)" />
+    </div>
+    <div id="formulas">
+      <ul id="formulas-list"/>
+    </div>
+    <script>
+      function start() {
+        toggleLoading(true)
+        google.script.run.withSuccessHandler(populateHtml.bind(null, $('#formulas-list'))).buildCurrentHtml()
+        $('#formulas-list').on('click', '.caret', handleClick)
+      }
+
+      function populateHtml(el, html) {
+        toggleLoading(false)
+        $(el).append(html)
+      }
+      
+      function handleClick(event) {
+        event.stopPropagation()
+        $(this).toggleClass("caret-down")
+        const $nested = $('.nested', this)
+        if ($nested.length) {
+          console.log('children already present, setting as active')
+          $nested.toggleClass("active")
+        } else {
+          toggleLoading(true)
+          console.log('children not present, populating...')
+          let globalRef = $('.ref', this).text()
+          google.script.run.withSuccessHandler(populateHtml.bind(null, this)).buildChildrenHtml(globalRef)
+        }
+      }
+      
+      function toggleLoading(loading) {
+        if (loading) {
+          $('#utils').append('<span class="loading-message">Loading...</span>')
+        } else {
+          $('.loading-message').remove()
+        }
+      }
+      
+      function toggleAll(expand) {
+        $('.nested').toggleClass('active', expand)
+        $('.caret').toggleClass('caret-down', expand)
+      }
+    </script>
+  </body>
+</html>
