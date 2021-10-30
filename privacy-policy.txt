@@ -1,0 +1,3 @@
+This app reads Google Sheets cell data for the sole purpose displaying the formula tree.
+
+One must authenticate and sign in with Google and allow permissions otherwise the addon won't be added to Google Sheets.

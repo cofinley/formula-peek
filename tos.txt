@@ -1,0 +1,3 @@
+Terms of Service
+
+You provide the addon with permissions to view the worksheet's data, and the addon displays a formula tree using that data.
